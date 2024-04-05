@@ -1,31 +1,55 @@
-import 'package:calendar/calendar/presentation/ui/widgets/days_grid.dart';
-import 'package:calendar/calendar/presentation/ui/widgets/week_labels.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_calendar/calendar/presentation/ui/widgets/days_grid.dart';
+import 'package:flutter_calendar/calendar/presentation/ui/widgets/week_labels.dart';
 import 'package:intl/intl.dart';
 
-class BasicCalendar extends StatefulWidget {
+class FlutterCalendar extends StatefulWidget {
   final bool displayOptions;
   final int initialDayOfTheWeek;
-  final DateTime? selectedDate, minCalendarDate;
-  final Function(DateTime) onSelectadDayChange;
+  final DateTime? selectedDate;
+  final DateTime minCalendarDate;
+  final Function(DateTime)? onSelectadDayChange;
   final double crossAxisSpacing, mainAxisSpacing;
+  final Widget Function(BuildContext context, DateTime date)? itemBuilder;
 
-  const BasicCalendar({
+  const FlutterCalendar({
     super.key,
     this.displayOptions = true,
     this.initialDayOfTheWeek = DateTime.sunday,
-    required this.onSelectadDayChange,
+    this.onSelectadDayChange,
     this.selectedDate,
     this.crossAxisSpacing = 8,
     this.mainAxisSpacing = 8,
-    this.minCalendarDate,
+    required this.minCalendarDate,
+    this.itemBuilder,
   });
 
+  factory FlutterCalendar.builder({
+    required Widget Function(BuildContext context, DateTime date) itemBuilder,
+    required DateTime minCalendarDate,
+    Function(DateTime)? onSelectadDayChange,
+    bool displayOptions = true,
+    int initialDayOfTheWeek = DateTime.sunday,
+    DateTime? selectedDate,
+    double crossAxisSpacing = 8,
+    double mainAxisSpacing = 8,
+  }) =>
+      FlutterCalendar(
+        displayOptions: displayOptions,
+        initialDayOfTheWeek: initialDayOfTheWeek,
+        onSelectadDayChange: onSelectadDayChange,
+        selectedDate: selectedDate,
+        crossAxisSpacing: crossAxisSpacing,
+        mainAxisSpacing: mainAxisSpacing,
+        minCalendarDate: minCalendarDate,
+        itemBuilder: itemBuilder,
+      );
+
   @override
-  State<BasicCalendar> createState() => _BasicCalendarState();
+  State<FlutterCalendar> createState() => _FlutterCalendarState();
 }
 
-class _BasicCalendarState extends State<BasicCalendar> {
+class _FlutterCalendarState extends State<FlutterCalendar> {
   late DateTime selectedDate;
   late final PageController _dayPageController;
 
@@ -35,7 +59,7 @@ class _BasicCalendarState extends State<BasicCalendar> {
     selectedDate = widget.selectedDate ?? DateTime.now();
 
     final int initialPage =
-        (selectedDate.difference(widget.minCalendarDate!)).inDays ~/ 7;
+        (selectedDate.difference(widget.minCalendarDate)).inDays ~/ 7;
     _dayPageController =
         PageController(initialPage: initialPage, keepPage: true);
   }
@@ -96,18 +120,24 @@ class _BasicCalendarState extends State<BasicCalendar> {
                           mainAxisSpacing: widget.mainAxisSpacing,
                           initialDayOfTheWeek: widget.initialDayOfTheWeek,
                           dayOfWeekSelected: selectedDate,
-                          weekGenerator:
-                              (widget.minCalendarDate ?? DateTime.now())
-                                  .add(Duration(days: index * 7)),
+                          weekGenerator: widget.minCalendarDate
+                              .add(Duration(days: index * 7)),
                           onSelectDay: (date) {
                             setState(() {
                               selectedDate = date;
-                              widget.onSelectadDayChange(selectedDate);
+                              widget.onSelectadDayChange?.call(selectedDate);
                             });
                           },
                         )),
               ),
             ),
+            if (widget.itemBuilder case final itemBuilder?) ...[
+              const Divider(),
+              itemBuilder(
+                context,
+                selectedDate,
+              )
+            ]
           ],
         ),
       ));

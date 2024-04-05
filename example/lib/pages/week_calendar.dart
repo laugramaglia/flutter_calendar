@@ -1,6 +1,4 @@
-import 'dart:developer';
-
-import 'package:calendar/calendar.dart';
+import 'package:flutter_calendar/calendar.dart';
 import 'package:flutter/material.dart';
 
 class WeekCalendarView extends StatelessWidget {
@@ -8,17 +6,17 @@ class WeekCalendarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Week calendar'),
-        ),
+        appBar: AppBar(title: const Text('Week calendar')),
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              BasicCalendar(
+              FlutterCalendar(
                 minCalendarDate:
                     DateTime.now().subtract(const Duration(days: 100)),
-                onSelectadDayChange: (date) {
-                  log(date.toString());
+                itemBuilder: (context, date) {
+                  return Card(
+                    child: Center(child: Text(date.toString())),
+                  );
                 },
               ),
             ],
