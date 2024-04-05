@@ -66,8 +66,6 @@ class _FlutterCalendarState extends State<FlutterCalendar> {
 
   @override
   Widget build(BuildContext context) => Material(
-          child: Container(
-        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             if (widget.displayOptions)
@@ -133,12 +131,9 @@ class _FlutterCalendarState extends State<FlutterCalendar> {
             ),
             if (widget.itemBuilder case final itemBuilder?) ...[
               const Divider(),
-              itemBuilder(
-                context,
-                selectedDate,
-              )
+              itemBuilder(context, selectedDate),
             ]
           ],
         ),
-      ));
+      );
 }

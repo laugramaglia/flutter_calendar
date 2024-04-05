@@ -7,20 +7,18 @@ class WeekCalendarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Week calendar')),
-        body: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              FlutterCalendar(
-                minCalendarDate:
-                    DateTime.now().subtract(const Duration(days: 100)),
-                itemBuilder: (context, date) {
-                  return Card(
-                    child: Center(child: Text(date.toString())),
-                  );
-                },
+        body: FlutterCalendar(
+          minCalendarDate: DateTime.now().subtract(const Duration(days: 100)),
+          itemBuilder: (context, date) {
+            return Expanded(
+              child: Card(
+                child: Center(
+                  child:
+                      Column(children: [Center(child: Text(date.toString()))]),
+                ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       );
 }
