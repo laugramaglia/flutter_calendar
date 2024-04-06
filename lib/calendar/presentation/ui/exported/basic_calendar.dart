@@ -11,6 +11,8 @@ class FlutterCalendar extends StatefulWidget {
   final Function(DateTime)? onSelectadDayChange;
   final double crossAxisSpacing, mainAxisSpacing;
   final Widget Function(BuildContext context, DateTime date)? itemBuilder;
+  final List<DateTime>? highlightedDates;
+  final List<Color>? highlightedDatesColors;
 
   const FlutterCalendar({
     super.key,
@@ -22,6 +24,8 @@ class FlutterCalendar extends StatefulWidget {
     this.mainAxisSpacing = 8,
     required this.minCalendarDate,
     this.itemBuilder,
+    this.highlightedDates,
+    this.highlightedDatesColors,
   });
 
   factory FlutterCalendar.builder({
@@ -33,6 +37,8 @@ class FlutterCalendar extends StatefulWidget {
     DateTime? selectedDate,
     double crossAxisSpacing = 8,
     double mainAxisSpacing = 8,
+    List<DateTime>? highlightedDates,
+    List<Color>? highlightedDatesColors,
   }) =>
       FlutterCalendar(
         displayOptions: displayOptions,
@@ -43,6 +49,8 @@ class FlutterCalendar extends StatefulWidget {
         mainAxisSpacing: mainAxisSpacing,
         minCalendarDate: minCalendarDate,
         itemBuilder: itemBuilder,
+        highlightedDates: highlightedDates,
+        highlightedDatesColors: highlightedDatesColors,
       );
 
   @override
@@ -120,6 +128,10 @@ class _FlutterCalendarState extends State<FlutterCalendar> {
                           dayOfWeekSelected: selectedDate,
                           weekGenerator: widget.minCalendarDate
                               .add(Duration(days: index * 7)),
+                          highlightedDates: widget.highlightedDates,
+                          highlightedDatesColors:
+                              widget.highlightedDatesColors ??
+                                  [Theme.of(context).colorScheme.secondary],
                           onSelectDay: (date) {
                             setState(() {
                               selectedDate = date;

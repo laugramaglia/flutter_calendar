@@ -8,6 +8,8 @@ class DaysGrid extends StatelessWidget {
   final DateTime dayOfWeekSelected, weekGenerator;
   final DayDesign dayDesign;
   final void Function(DateTime)? onSelectDay;
+  final List<DateTime>? highlightedDates;
+  final List<Color> highlightedDatesColors;
 
   const DaysGrid({
     super.key,
@@ -18,6 +20,8 @@ class DaysGrid extends StatelessWidget {
     this.dayDesign = DayDesign.circle,
     this.onSelectDay,
     required this.weekGenerator,
+    this.highlightedDates,
+    required this.highlightedDatesColors,
   });
 
   final int _daysOfWeek = 7;
@@ -36,13 +40,16 @@ class DaysGrid extends StatelessWidget {
           final daySelected = date.day == dayOfWeekSelected.day &&
               date.month == dayOfWeekSelected.month &&
               date.year == dayOfWeekSelected.year;
-          return switch (dayDesign) {
-            DayDesign.square => _squareDay(context, daySelected, date),
-            DayDesign.circle => _circleDay(context, daySelected, date),
-            DayDesign.rounded => _roundedDay(context, daySelected, date),
-          };
+          return _uiSelector(context, daySelected, date);
         }));
   }
+
+  Widget _uiSelector(BuildContext context, daySelected, date) =>
+      switch (dayDesign) {
+        DayDesign.square => _squareDay(context, daySelected, date),
+        DayDesign.circle => _circleDay(context, daySelected, date),
+        DayDesign.rounded => _roundedDay(context, daySelected, date),
+      };
 
   Widget _squareDay(BuildContext context, bool daySelected, DateTime date) =>
       Ink(
@@ -78,15 +85,38 @@ class DaysGrid extends StatelessWidget {
         onSelectDay?.call(date);
       },
       borderRadius: radius == null ? null : BorderRadius.circular(radius),
-      child: Center(
-        child: Text(
-          date.day.toString(),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: daySelected
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onPrimaryContainer,
-              fontWeight: daySelected ? FontWeight.bold : FontWeight.normal),
-        ),
+      child: Stack(
+        children: [
+          Center(
+            child: Text(
+              date.day.toString(),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: daySelected
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight:
+                      daySelected ? FontWeight.bold : FontWeight.normal),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: date.matchAny(highlightedDates) && !daySelected ? 1 : 0,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Icon(
+                    Icons.circle,
+                    size: 7,
+                    color: highlightedDatesColors.first,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -99,11 +129,18 @@ class DaysGrid extends StatelessWidget {
   }
 
   Border? _border(BuildContext context, DateTime date, bool daySelected) =>
-      date.year == DateTime.now().year &&
-              date.month == DateTime.now().month &&
-              date.day == DateTime.now().day
+      date.isSameDay(DateTime.now())
           ? daySelected
               ? null
               : Border.all()
           : null;
+}
+
+extension DateTimeExtension on DateTime {
+  bool isSameDay(DateTime other) =>
+      day == other.day && month == other.month && year == other.year;
+
+  bool matchAny(List<DateTime>? dates) => dates == null || dates.isEmpty
+      ? false
+      : dates.any((element) => isSameDay(element));
 }
